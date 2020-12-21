@@ -896,7 +896,6 @@ module Fluent::Plugin
         def handle_notify
           with_io do |io|
             begin
-              bytes_to_read = 8192
               number_bytes_read = 0
               start_reading = Fluent::EventTime.now
               read_more = false
@@ -904,7 +903,7 @@ module Fluent::Plugin
               if !io.nil? && @lines.empty?
                 begin
                   while true
-                    @fifo << io.readpartial(bytes_to_read, @iobuf)
+                    @fifo << io.readpartial(8192, @iobuf)
                     @fifo.read_lines(@lines)
 
                     number_bytes_read += @lines.last.size
