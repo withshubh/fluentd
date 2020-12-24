@@ -293,6 +293,14 @@ class TailInputTest < Test::Unit::TestCase
         FileUtils.rm_f("#{TMP_DIR}/tail.txt")
       end
 
+      def count_thread_pool_object
+        num = 0
+        ObjectSpace.each_object(Fluent::Plugin::TailInput::TailThread::Pool) { |obj|
+          num += 1
+        }
+        num
+      end
+
       data("flat 8192 bytes, 24 events"        => [:flat, 100, 8192, 24],
            "flat 8192 bytes, 24 events w/o stat watcher" => [:flat_without_stat, 100, 8192, 24],
            "flat #{8192*10} bytes, 22 events"  => [:flat, 100, (8192 * 10), 22],
@@ -330,6 +338,10 @@ class TailInputTest < Test::Unit::TestCase
               f.puts msg
             end
           }
+        end
+
+        assert do
+          count_thread_pool_object >= 1
         end
 
         events = d.events
